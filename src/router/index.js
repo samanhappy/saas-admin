@@ -10,8 +10,14 @@ Vue.use(Router)
 Vue.http.interceptors.push(function (request, next) {
   console.log(request)
   next(function (response) {
-    if (response.status !== 200 || response.body.status !== 0) {
+    if (response.status !== 200) {
       this.$message.error('请求出错')
+    } else if (response.body.status !== 0) {
+      if (response.body.message !== '') {
+        this.$message.error(response.body.message)
+      } else {
+        this.$message.error('处理出错')
+      }
     }
     console.log(response)
   })
