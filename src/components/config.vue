@@ -2,8 +2,10 @@
   const API_URL = 'http://localhost:8080/saas-api/'
   const UPLOAD_URL = API_URL + 'alyoss/'
   const OSS_URL = 'http://cplatform.oss-cn-hangzhou.aliyuncs.com/'
+  var token = ''
+  var userId = ''
   export default
   {
-    API_URL, UPLOAD_URL, OSS_URL
+    API_URL, UPLOAD_URL, OSS_URL, token, userId
   }
 </script>

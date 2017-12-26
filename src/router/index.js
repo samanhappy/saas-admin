@@ -8,6 +8,8 @@ Vue.use(VueResource)
 Vue.use(Router)
 
 Vue.http.interceptors.push(function (request, next) {
+  request.headers.set('token', this.config.token)
+  request.headers.set('appId', this.config.appId)
   console.log(request)
   next(function (response) {
     if (response.status !== 200) {
