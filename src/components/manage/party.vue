@@ -29,13 +29,13 @@
 
       <el-tab-pane label="导入" name="import">
         <el-button type="success" @click="downTpl">下载模板</el-button>
-        <el-upload style="display:inline" :action="this.config.UPLOAD_URL + 'upload'":on-preview="handlePreview" :on-remove="handleRemove" name="file" :data="upload"
-          :limit="1" :file-list="fileList" :show-file-list="false" :before-upload="beforeUpload" :on-success="uploadSuccess"
-          :on-error="uploadError" :on-exceed="fileExceed">
+        <el-upload style="display:inline" :action="this.config.UPLOAD_URL + 'upload'":on-preview="handlePreview" :on-remove="handleRemove" name="file"
+          :data="upload" :headers="headers" :limit="1" :file-list="fileList" :show-file-list="false"
+          :before-upload="beforeUpload" :on-success="uploadSuccess" :on-error="uploadError" :on-exceed="fileExceed">
           <el-button size="small" type="primary">上传</el-button>
           <a v-if="fileKey" :href="this.config.OSS_URL + this.fileKey">{{fileName}}</a>
           <el-button v-if="fileKey" style="margin-left:10px" slot="tip" type="primary" @click="clearFile">清空</el-button>
-          <el-button style="margin-left:10px" slot="tip" type="primary">提交</el-button>
+          <el-button style="margin-left:10px" slot="tip" type="primary" @click="importFile">提交</el-button>
         </el-upload>
       </el-tab-pane>
 
@@ -81,10 +81,33 @@ export default {
       fileList: [],
       fileKey: '',
       fileName: '',
-      row: {}
+      row: {},
+      headers: {
+      }
     }
   },
   methods: {
+    importFile () {
+      if (this.fileKey === '') {
+        this.$message.error('请先上传文件')
+        return false
+      }
+      this.$http.get(this.config.API_URL + 'user/importPartyDate', {
+        params: {
+          fileUrl: this.config.OSS_URL + this.fileKey
+        }
+      }).then((response) => {
+        if (response.status === 200 && response.body.status === 0) {
+          this.$message.success('导入成功')
+          this.initFile()
+        }
+      })
+    },
+    initFile () {
+      this.fileKey = ''
+      this.fileName = ''
+      this.fileList = []
+    },
     clearFile () {
       this.$http.get(this.config.UPLOAD_URL + 'delete', {
         params: {
@@ -92,9 +115,7 @@ export default {
         }
       }).then((response) => {
       })
-      this.fileKey = ''
-      this.fileName = ''
-      this.fileList = []
+      this.initFile()
     },
     downTpl () {
       window.location.href = this.config.API_URL + 'tpl/入党日期导入模板.xls'
@@ -107,6 +128,12 @@ export default {
       if (!(file.size / 1024 / 1024 < 2)) {
         this.$message.error('上传文件大小不能超过 2MB!')
         return false
+      }
+      this.headers = {
+        userToken: this.config.user.token,
+        token: this.config.token,
+        appId: this.config.appId,
+        type: this.config.type
       }
     },
     uploadSuccess (response, file, fileList) {
