@@ -4,8 +4,9 @@
   var appId = ''
   var type = 0
   var user = {}
+  var fullLoading = false
   export default
   {
-    API_URL, token, appId, type, user
+    API_URL, token, appId, type, user, fullLoading
   }
 </script>

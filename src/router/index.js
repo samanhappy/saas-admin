@@ -26,7 +26,9 @@ Vue.http.interceptors.push(function (request, next) {
     return false
   }
   console.log(request)
+  this.config.fullLoading = true
   next(function (response) {
+    this.config.fullLoading = false
     if (response.headers.get('user')) {
       this.config.user = JSON.parse(response.headers.get('user'))
     }

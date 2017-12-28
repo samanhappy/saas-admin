@@ -1,16 +1,16 @@
 <template>
   <div>
-    <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tabs v-model="activeName" @tab-click="handleClick" v-loading.fullscreen.lock="this.config.fullLoading">
       <el-tab-pane label="人员列表" name="list">
         <el-form :inline="true" class="demo-form-inline">
           <el-form-item>
             <el-input v-model="name" placeholder="姓名"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="load">查询</el-button>
+            <el-button type="primary" @click="loadParty">查询</el-button>
           </el-form-item>
         </el-form>
-        <el-table v-loading="loading" :data="tableData" stripe style="width: 100%">
+        <el-table :data="tableData" stripe style="width: 100%">
           <el-table-column type="index"></el-table-column>
           <el-table-column prop="name" label="姓名" width="180"></el-table-column>
           <el-table-column prop="partyDate" label="入党日期" :formatter="dateFormatter" width="180"></el-table-column>
@@ -22,9 +22,25 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination background @size-change="load" @current-change="load" :current-page="pageNo" :page-sizes="[10, 50, 100]"
+        <el-pagination background @size-change="loadParty" @current-change="loadParty" :current-page="pageNo" :page-sizes="[10, 50, 100]"
           :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper, ->" :total="total" v-if="total > 0">
         </el-pagination>
+
+        <el-dialog title="修改入党日期" :visible.sync="edit" label-width="80px">
+          <el-form>
+            <el-form-item label="姓名">
+              <label>{{row.name}}</label>
+            </el-form-item>
+            <el-form-item label="生日">
+              <el-date-picker v-model="partyDate" type="date" placeholder="选择日期">
+              </el-date-picker>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="edit = false">取 消</el-button>
+            <el-button type="primary" @click="submitEdit">确 定</el-button>
+          </div>
+        </el-dialog>
       </el-tab-pane>
 
       <el-tab-pane label="导入" name="import">
@@ -40,25 +56,23 @@
       </el-tab-pane>
 
       <el-tab-pane label="模板配置" name="config">
-
+        <el-form :model="configForm" ref="configForm" :rules="rules" label-width="100px">
+          <el-form-item label="背景图片" required prop="bgPicUrl">
+            <el-radio v-model="configForm.bgPicUrl" label="party1.png"><img width="150px" src="../../assets/img/party1.png"/></el-radio>
+            <el-radio v-model="configForm.bgPicUrl" label="party2.png"><img width="150px" src="../../assets/img/party2.png"/></el-radio>
+            <el-radio v-model="configForm.bgPicUrl" label="party3.png"><img width="150px" src="../../assets/img/party3.png"/></el-radio>
+          </el-form-item>
+          <el-form-item label="提示消息" required prop="message">
+            <el-input type="textarea" v-model="configForm.message"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="saveConfig('configForm')">保存</el-button>
+          </el-form-item>
+        </el-form>
       </el-tab-pane>
     </el-tabs>
+  </el-button>
 
-    <el-dialog title="修改入党日期" :visible.sync="edit" label-width="80px">
-      <el-form>
-        <el-form-item label="姓名">
-          <label>{{row.name}}</label>
-        </el-form-item>
-        <el-form-item label="生日">
-          <el-date-picker v-model="partyDate" type="date" placeholder="选择日期">
-          </el-date-picker>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="edit = false">取 消</el-button>
-        <el-button type="primary" @click="submitEdit">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -66,10 +80,21 @@
 export default {
   data () {
     return {
+      configForm: {
+        bgPicUrl: '',
+        message: ''
+      },
+      rules: {
+        bgPicUrl: [
+          { required: true, message: '请选择背景图片', trigger: 'blur' }
+        ],
+        message: [
+          { required: true, message: '请输入提示消息语', trigger: 'blur' }
+        ]
+      },
       name: '',
-      loading: false,
       edit: false,
-      activeName: 'import',
+      activeName: 'config',
       partyDate: '',
       pageNo: 1,
       pageSize: 10,
@@ -155,7 +180,7 @@ export default {
     },
     handleClick (key, keyPath) {
       if (this.activeName === 'list') {
-        this.load()
+        this.loadParty()
       }
     },
     openEdit (index, row) {
@@ -168,14 +193,14 @@ export default {
         this.$http.delete(this.config.API_URL + '/api/userParty/' + this.row.id + '/partyDate'
         ).then((response) => {
           this.edit = false
-          this.load()
+          this.loadParty()
         })
       } else {
         this.$http.patch(this.config.API_URL + '/api/userParty/' + this.row.id, {
           partyDate: this.partyDate
         }).then((response) => {
           this.edit = false
-          this.load()
+          this.loadParty()
         })
       }
     },
@@ -187,7 +212,7 @@ export default {
       }).then(() => {
         this.$http.delete(this.config.API_URL + '/api/userParty/' + row.id + '/partyDate'
         ).then((response) => {
-          this.load()
+          this.loadParty()
         })
       })
     },
@@ -197,8 +222,7 @@ export default {
     timeFormatter (row, column) {
       return this.timeFormat(row[column.property], 'YYYY-MM-DD HH:mm:ss')
     },
-    load () {
-      this.loading = true
+    loadParty () {
       this.$http.get(this.config.API_URL + '/api/userParty/', {
         params: {
           name: this.name,
@@ -206,17 +230,54 @@ export default {
           pageSize: this.pageSize
         }
       }).then((response) => {
-        this.loading = false
         this.tableData = response.body.page.list
         this.total = response.body.page.total
       }).then((response) => {
-        this.loading = false
+      })
+    },
+    loadConfig () {
+      this.$http.get(this.config.API_URL + '/api/corpPartyConf/get')
+      .then((response) => {
+        if (response.body.data) {
+          this.configForm = response.body.data
+        }
+      }).then((response) => {
+      })
+    },
+    saveConfig (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.configForm.id) {
+            this.$http.patch(this.config.API_URL + '/api/corpPartyConf/' + this.configForm.id, this.configForm)
+            .then((response) => {
+              if (response.body.status === 0) {
+                this.$message.success('保存成功')
+                this.loadConfig()
+              }
+            }).then((response) => {
+            })
+          } else {
+            this.configForm.id = this.config.user.corpId
+            this.$http.put(this.config.API_URL + '/api/corpPartyConf/', this.configForm)
+            .then((response) => {
+              if (response.body.status === 0) {
+                this.$message.success('保存成功')
+                this.loadConfig()
+              }
+            }).then((response) => {
+            })
+          }
+        } else {
+          return false
+        }
       })
     }
   },
   mounted: function () {
     if (this.activeName === 'list') {
-      this.load()
+      this.loadParty()
+    } if (this.activeName === 'config') {
+      this.loadConfig()
     }
   }
 }

@@ -14,7 +14,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "element-ui": "^2.0.8",
+    "element-ui": "^2.0.9",
     "moment": "^2.20.1",
     "vue": "^2.5.2",
     "vue-momentjs": "^0.1.1",
