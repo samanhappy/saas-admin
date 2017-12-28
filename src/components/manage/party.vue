@@ -236,7 +236,7 @@ export default {
       })
     },
     loadConfig () {
-      this.$http.get(this.config.API_URL + '/api/corpPartyConf/get')
+      this.$http.get(this.config.API_URL + '/api/corpPartyConf/corp')
       .then((response) => {
         if (response.body.data) {
           this.configForm = response.body.data
@@ -247,26 +247,15 @@ export default {
     saveConfig (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.configForm.id) {
-            this.$http.patch(this.config.API_URL + '/api/corpPartyConf/' + this.configForm.id, this.configForm)
-            .then((response) => {
-              if (response.body.status === 0) {
-                this.$message.success('保存成功')
-                this.loadConfig()
-              }
-            }).then((response) => {
-            })
-          } else {
-            this.configForm.id = this.config.user.corpId
-            this.$http.put(this.config.API_URL + '/api/corpPartyConf/', this.configForm)
-            .then((response) => {
-              if (response.body.status === 0) {
-                this.$message.success('保存成功')
-                this.loadConfig()
-              }
-            }).then((response) => {
-            })
-          }
+          this.configForm.id = this.config.user.corpId
+          this.$http.put(this.config.API_URL + '/api/corpPartyConf/upsert', this.configForm)
+          .then((response) => {
+            if (response.body.status === 0) {
+              this.$message.success('保存成功')
+              this.loadConfig()
+            }
+          }).then((response) => {
+          })
         } else {
           return false
         }
