@@ -29,12 +29,12 @@
 
       <el-tab-pane label="导入" name="import">
         <el-button type="success" @click="downTpl">下载模板</el-button>
-        <el-upload style="display:inline" :action="this.config.UPLOAD_URL + 'upload'":on-preview="handlePreview" :on-remove="handleRemove" name="file"
+        <el-upload style="display:inline" :action="this.config.API_URL + '/upload/upload'":on-preview="handlePreview" :on-remove="handleRemove" name="file"
           :data="upload" :headers="headers" :limit="1" :file-list="fileList" :show-file-list="false"
           :before-upload="beforeUpload" :on-success="uploadSuccess" :on-error="uploadError" :on-exceed="fileExceed">
           <el-button size="small" type="primary">上传</el-button>
-          <a v-if="fileKey" :href="this.config.OSS_URL + this.fileKey">{{fileName}}</a>
-          <el-button v-if="fileKey" style="margin-left:10px" slot="tip" type="primary" @click="clearFile">清空</el-button>
+          <a v-if="file.fileKey" :href="this.config.OSS_URL + this.file.fileKey">{{fileName}}</a>
+          <el-button v-if="file.fileKey" style="margin-left:10px" slot="tip" type="primary" @click="clearFile">清空</el-button>
           <el-button style="margin-left:10px" slot="tip" type="primary" @click="importFile">提交</el-button>
         </el-upload>
       </el-tab-pane>
@@ -79,46 +79,45 @@ export default {
       },
       tableData: [],
       fileList: [],
-      fileKey: '',
+      file: {},
       fileName: '',
       row: {},
-      headers: {
-      }
+      headers: {}
     }
   },
   methods: {
     importFile () {
-      if (this.fileKey === '') {
+      if (this.file.fileKey === '') {
         this.$message.error('请先上传文件')
         return false
       }
-      this.$http.get(this.config.API_URL + 'user/importPartyDate', {
+      this.$http.get(this.config.API_URL + '/api/userParty/import', {
         params: {
-          fileUrl: this.config.OSS_URL + this.fileKey
+          fileUrl: this.file.serverUrl + this.file.fileKey
         }
       }).then((response) => {
         if (response.status === 200 && response.body.status === 0) {
           this.$message.success('导入成功')
-          this.initFile()
+          this.clearFile()
         }
       })
     },
     initFile () {
-      this.fileKey = ''
       this.fileName = ''
       this.fileList = []
+      this.file = {}
     },
     clearFile () {
-      this.$http.get(this.config.UPLOAD_URL + 'delete', {
+      this.$http.get(this.config.API_URL + '/upload/delete', {
         params: {
-          key: this.fileKey
+          fileKey: this.file.fileKey
         }
       }).then((response) => {
       })
       this.initFile()
     },
     downTpl () {
-      window.location.href = this.config.API_URL + 'tpl/入党日期导入模板.xls'
+      window.location.href = this.config.API_URL + '/tpl/入党日期导入模板.xls'
     },
     beforeUpload (file) {
       if (!this.endWith(file.name, '.xls')) {
@@ -138,31 +137,26 @@ export default {
     },
     uploadSuccess (response, file, fileList) {
       this.$message.success('上传成功')
-      this.fileKey = response.data
+      this.file = response.data
       this.fileName = file.name
     },
     fileExceed (files, fileList) {
       this.$message('请先清空再上传')
     },
     uploadError () {
-      this.fileKey = ''
+      this.file.fileKey = ''
       this.$message.error('上传失败')
     },
     handleRemove (file, fileList) {
-      if (this.fileKey !== '') {
-        this.$http.get(this.config.UPLOAD_URL + 'delete', {
-          params: {
-            key: this.fileKey
-          }
-        }).then((response) => {
-        })
-      }
+      this.clearFile()
     },
     handlePreview (file) {
       console.log(file)
     },
     handleClick (key, keyPath) {
-      console.log(key, keyPath)
+      if (this.activeName === 'list') {
+        this.load()
+      }
     },
     openEdit (index, row) {
       this.row = row
@@ -171,13 +165,13 @@ export default {
     },
     submitEdit () {
       if (this.partyDate == null) {
-        this.$http.delete(this.config.API_URL + 'user/' + this.row.id + '/partyDate'
+        this.$http.delete(this.config.API_URL + '/api/userParty/' + this.row.id + '/partyDate'
         ).then((response) => {
           this.edit = false
           this.load()
         })
       } else {
-        this.$http.patch(this.config.API_URL + 'user/' + this.row.id, {
+        this.$http.patch(this.config.API_URL + '/api/userParty/' + this.row.id, {
           partyDate: this.partyDate
         }).then((response) => {
           this.edit = false
@@ -191,7 +185,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$http.delete(this.config.API_URL + 'user/' + row.id + '/partyDate'
+        this.$http.delete(this.config.API_URL + '/api/userParty/' + row.id + '/partyDate'
         ).then((response) => {
           this.load()
         })
@@ -205,7 +199,7 @@ export default {
     },
     load () {
       this.loading = true
-      this.$http.get(this.config.API_URL + 'user/', {
+      this.$http.get(this.config.API_URL + '/api/userParty/', {
         params: {
           name: this.name,
           pageNo: this.pageNo,
@@ -221,7 +215,9 @@ export default {
     }
   },
   mounted: function () {
-    this.load()
+    if (this.activeName === 'list') {
+      this.load()
+    }
   }
 }
 </script>
