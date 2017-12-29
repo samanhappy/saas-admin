@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "element-ui": "^2.0.9",
+    "js-base64": "^2.4.0",
     "moment": "^2.20.1",
     "vue": "^2.5.2",
     "vue-momentjs": "^0.1.1",
