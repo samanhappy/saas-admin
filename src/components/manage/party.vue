@@ -71,9 +71,8 @@
         </el-form>
       </el-tab-pane>
     </el-tabs>
-  </el-button>
-
   </div>
+  <input
 </template>
 
 <script>
@@ -116,7 +115,7 @@ export default {
         this.$message.error('请先上传文件')
         return false
       }
-      this.$http.get(this.config.API_URL + '/api/userParty/import', {
+      this.$http.get(this.config.API_URL + '/app/userParty/import', {
         params: {
           fileUrl: this.file.serverUrl + this.file.fileKey
         }
@@ -190,13 +189,13 @@ export default {
     },
     submitEdit () {
       if (this.partyDate == null) {
-        this.$http.delete(this.config.API_URL + '/api/userParty/' + this.row.id + '/partyDate'
+        this.$http.delete(this.config.API_URL + '/app/userParty/' + this.row.id + '/partyDate'
         ).then((response) => {
           this.edit = false
           this.loadParty()
         })
       } else {
-        this.$http.patch(this.config.API_URL + '/api/userParty/' + this.row.id, {
+        this.$http.patch(this.config.API_URL + '/app/userParty/' + this.row.id, {
           partyDate: this.partyDate
         }).then((response) => {
           this.edit = false
@@ -210,7 +209,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$http.delete(this.config.API_URL + '/api/userParty/' + row.id + '/partyDate'
+        this.$http.delete(this.config.API_URL + '/app/userParty/' + row.id + '/partyDate'
         ).then((response) => {
           this.loadParty()
         })
@@ -223,7 +222,7 @@ export default {
       return this.timeFormat(row[column.property], 'YYYY-MM-DD HH:mm:ss')
     },
     loadParty () {
-      this.$http.get(this.config.API_URL + '/api/userParty/', {
+      this.$http.get(this.config.API_URL + '/app/userParty/', {
         params: {
           name: this.name,
           pageNo: this.pageNo,
@@ -236,7 +235,7 @@ export default {
       })
     },
     loadConfig () {
-      this.$http.get(this.config.API_URL + '/api/corpPartyConf/corp')
+      this.$http.get(this.config.API_URL + '/app/corpPartyConf/corpId')
       .then((response) => {
         if (response.body.data) {
           this.configForm = response.body.data
@@ -248,7 +247,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.configForm.id = this.config.user.corpId
-          this.$http.put(this.config.API_URL + '/api/corpPartyConf/upsert', this.configForm)
+          this.$http.put(this.config.API_URL + '/app/corpPartyConf/upsert', this.configForm)
           .then((response) => {
             if (response.body.status === 0) {
               this.$message.success('保存成功')
