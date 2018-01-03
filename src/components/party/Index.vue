@@ -160,7 +160,7 @@ export default {
       },
       name: '',
       edit: false,
-      activeName: 'config',
+      activeName: 'list',
       partyDate: '',
       pageNo: 1,
       pageSize: 10,
@@ -320,7 +320,7 @@ export default {
       })
     }
   },
-  mounted: function () {
+  mounted: function() {
     if (this.activeName === 'list') {
       this.loadParty()
     }

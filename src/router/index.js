@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import ManageParty from '@/components/manage/party'
+import PartyIndex from '@/components/party/index'
 import VueResource from 'vue-resource'
 import { Base64 } from 'js-base64'
 
@@ -51,12 +50,8 @@ Vue.http.interceptors.push(function (request, next) {
 export default new Router({
   routes: [
     {
-      path: '/',
-      component: HelloWorld
-    },
-    {
-      path: '/manage/party',
-      component: ManageParty
+      path: '/party/index.html',
+      component: PartyIndex
     }
   ]
 })
