@@ -3,7 +3,9 @@ import Router from 'vue-router'
 import PartyIndex from '@/components/party/index'
 import VueResource from 'vue-resource'
 import { Base64 } from 'js-base64'
+import VueWechatTitle from 'vue-wechat-title'
 
+Vue.use(VueWechatTitle)
 Vue.use(VueResource)
 Vue.use(Router)
 
@@ -51,7 +53,10 @@ export default new Router({
   routes: [
     {
       path: '/party/index.html',
-      component: PartyIndex
+      component: PartyIndex,
+      meta: {
+        title: '入党管理'
+      }
     }
   ]
 })
