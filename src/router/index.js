@@ -30,9 +30,9 @@ Vue.http.interceptors.push(function (request, next) {
     return false
   }
   console.log(request)
-  this.config.fullLoading = true
+  const loading = this.$loading()
   next(function (response) {
-    this.config.fullLoading = false
+    loading.close()
     if (response.headers.get('user')) {
       this.config.user = JSON.parse(Base64.decode(response.headers.get('user')))
     }

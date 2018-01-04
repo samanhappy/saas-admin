@@ -1,5 +1,5 @@
 <template>
-<div id="app">
+<div id="app" v-loading.fullscreen.lock="this.config.fullLoading">
   <router-view v-wechat-title="$route.meta.title" /> </div>
 </template>
 

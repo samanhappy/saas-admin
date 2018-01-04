@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-tabs v-model="activeName" @tab-click="handleClick" v-loading.fullscreen.lock="this.config.fullLoading">
+  <el-tabs v-model="activeName" @tab-click="handleClick">
     <el-tab-pane label="人员列表" name="list">
       <el-form :inline="true" class="demo-form-inline">
         <el-form-item>
