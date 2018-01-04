@@ -20,7 +20,8 @@
               <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除入党日期</el-button>
             </template> </el-table-column>
       </el-table>
-      <el-pagination background @size-change="loadParty" @current-change="loadParty" :current-page="pageNo" :page-sizes="[10, 50, 100]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper, ->" :total="total" v-if="total > 0"> </el-pagination>
+      <el-pagination background @size-change="loadParty" @current-change="loadParty" :current-page="pageNo" :page-sizes="[10, 50, 100]"
+        :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper, ->" :total="total" v-if="total > 0"> </el-pagination>
       <el-dialog title="修改入党日期" :visible.sync="edit" label-width="80px">
         <el-form>
           <el-form-item label="姓名"> <label>{{row.name}}</label> </el-form-item>
@@ -36,8 +37,9 @@
     </el-tab-pane>
     <el-tab-pane label="导入" name="import">
       <el-button type="success" @click="downTpl">下载模板</el-button>
-      <el-upload style="display:inline" :action="this.config.API_URL + '/upload/upload'" :on-preview="handlePreview" :on-remove="handleRemove" name="file" :data="upload" :headers="headers" :limit="1" :file-list="fileList" :show-file-list="false"
-        :before-upload="beforeUpload" :on-success="uploadSuccess" :on-error="uploadError" :on-exceed="fileExceed">
+      <el-upload style="display:inline" :action="this.config.API_URL + '/upload/upload'" :on-preview="handlePreview" :on-remove="handleRemove"
+        name="file" :data="upload" :headers="headers" :limit="1" :file-list="fileList" :show-file-list="false" :before-upload="beforeUpload"
+        :on-success="uploadSuccess" :on-error="uploadError" :on-exceed="fileExceed">
         <el-button size="small" type="primary">上传</el-button> <a v-if="file.fileKey" :href="this.config.OSS_URL + this.file.fileKey">{{fileName}}</a>
         <el-button v-if="file.fileKey" style="margin-left:10px" slot="tip" type="primary" @click="clearFile">清空</el-button>
         <el-button style="margin-left:10px" slot="tip" type="primary" @click="importFile">提交</el-button>
@@ -244,9 +246,7 @@ export default {
       console.log(file)
     },
     handleClick(key, keyPath) {
-      if (this.activeName === 'list') {
-        this.loadParty()
-      }
+      this.load()
     },
     openEdit(index, row) {
       this.row = row
@@ -318,15 +318,17 @@ export default {
           return false
         }
       })
+    },
+    load() {
+      if (this.activeName === 'list') {
+        this.loadParty()
+      } else if (this.activeName === 'config') {
+        this.loadConfig()
+      }
     }
   },
-  mounted: function() {
-    if (this.activeName === 'list') {
-      this.loadParty()
-    }
-    if (this.activeName === 'config') {
-      this.loadConfig()
-    }
+  mounted: function () {
+    this.load()
   }
 }
 </script>
