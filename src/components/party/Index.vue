@@ -175,7 +175,8 @@ export default {
       file: {},
       fileName: '',
       row: {},
-      headers: {}
+      headers: {},
+      loading: null
     }
   },
   methods: {
@@ -184,15 +185,19 @@ export default {
         this.$message.error('请先上传文件')
         return false
       }
+      this.loading = this.$loading()
       this.$http.get(this.config.API_URL + '/app/userParty/import', {
         params: {
           fileUrl: this.file.serverUrl + this.file.fileKey
         }
       }).then((response) => {
+        this.loading.close()
         if (response.status === 200 && response.body.status === 0) {
           this.$message.success('导入成功')
           this.clearFile()
         }
+      }, response => {
+        this.loading.close()
       })
     },
     initFile() {
@@ -226,8 +231,10 @@ export default {
         appId: this.config.appId,
         type: this.config.type
       }
+      this.loading = this.$loading()
     },
     uploadSuccess(response, file, fileList) {
+      this.loading.close()
       this.$message.success('上传成功')
       this.file = response.data
       this.fileName = file.name
@@ -236,6 +243,7 @@ export default {
       this.$message('请先清空再上传')
     },
     uploadError() {
+      this.loading.close()
       this.file.fileKey = ''
       this.$message.error('上传失败')
     },
