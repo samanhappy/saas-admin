@@ -48,6 +48,26 @@
     <el-tab-pane label="消息配置" name="config">
       <el-form :model="configForm" ref="configForm" :rules="rules" label-width="100px">
         <el-card class="box-card">
+          <div slot="header" class="clearfix"><span>消息配置</span></div>
+          <div>
+            <el-row>
+              <el-col :span="6">
+                <el-form-item label="消息开关" required prop="msgPushSwitch">
+                  <el-switch v-model="configForm.msgPushSwitch" active-color="#13ce66" :active-value="1" :inactive-value="0">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+              <el-col :span="18" v-show="configForm.msgPushSwitch==1">
+                <el-form-item label="推送时间" required prop="msgPushTime">
+                  <el-time-picker v-model="configForm.msgPushTime" value-format="HH:mm:ss">
+                  </el-time-picker>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+          </div>
+        </el-card>
+        <el-card class="box-card" v-show="configForm.msgPushSwitch==1">
           <div slot="header" class="clearfix"><span>系统发送给本人</span></div>
           <div>
             <el-row>
@@ -72,7 +92,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <el-card class="box-card">
+        <el-card class="box-card" v-show="configForm.msgPushSwitch==1">
           <div slot="header" class="clearfix"><span>系统发送给他人</span></div>
           <div>
             <el-row>
@@ -89,7 +109,7 @@
             </el-row>
           </div>
         </el-card>
-        <el-card class="box-card">
+        <el-card class="box-card" v-show="configForm.msgPushSwitch==1">
           <div slot="header" class="clearfix"><span>他人发送给本人</span></div>
           <div>
             <el-row>
@@ -127,6 +147,14 @@ export default {
         message: ''
       },
       rules: {
+        msgPushSwitch: [{
+          required: true,
+          message: '请选择消息开关'
+        }],
+        msgPushTime: [{
+          required: true,
+          message: '请选择推送时间'
+        }],
         sysMsgTitle: [{
           required: true,
           message: '请输入消息标题'
@@ -309,23 +337,34 @@ export default {
       this.$http.get(this.config.API_URL + '/app/corpPartyConf/corpId').then((response) => {
         if (response.body.data) {
           this.configForm = response.body.data
+          console.log(this.configForm.msgPushTime)
         }
       }).then((response) => {})
     },
     saveConfig(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.configForm.id = this.config.user.corpId
-          this.$http.put(this.config.API_URL + '/app/corpPartyConf/upsert', this.configForm).then((response) => {
-            if (response.body.status === 0) {
-              this.$message.success('保存成功')
-              this.loadConfig()
-            }
-          }).then((response) => {})
-        } else {
-          return false
-        }
-      })
+      if (this.configForm.msgPushSwitch === 1) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.configForm.id = this.config.user.corpId
+            this.$http.put(this.config.API_URL + '/app/corpPartyConf/upsert', this.configForm).then((response) => {
+              if (response.body.status === 0) {
+                this.$message.success('保存成功')
+                this.loadConfig()
+              }
+            }).then((response) => {})
+          } else {
+            return false
+          }
+        })
+      } else {
+        this.configForm.id = this.config.user.corpId
+        this.$http.put(this.config.API_URL + '/app/corpPartyConf/upsert', this.configForm).then((response) => {
+          if (response.body.status === 0) {
+            this.$message.success('保存成功')
+            this.loadConfig()
+          }
+        }).then((response) => {})
+      }
     },
     load() {
       if (this.activeName === 'list') {
