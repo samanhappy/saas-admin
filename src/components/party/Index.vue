@@ -59,7 +59,7 @@
               </el-col>
               <el-col :span="18" v-show="configForm.msgPushSwitch==1">
                 <el-form-item label="推送时间" required prop="msgPushTime">
-                  <el-time-picker v-model="configForm.msgPushTime" value-format="HH:mm:ss">
+                  <el-time-picker v-model="configForm.msgPushTime" value-format="timestamp">
                   </el-time-picker>
                 </el-form-item>
               </el-col>
