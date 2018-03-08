@@ -2,14 +2,18 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import PartyIndex from '@/components/party/index'
 import VueResource from 'vue-resource'
-import { Base64 } from 'js-base64'
+import {
+  Base64
+} from 'js-base64'
 import VueWechatTitle from 'vue-wechat-title'
 
 Vue.use(VueWechatTitle)
 Vue.use(VueResource)
 Vue.use(Router)
 
-Vue.http.interceptors.push(function (request, next) {
+const _import = require('./_import_' + process.env.NODE_ENV)
+
+Vue.http.interceptors.push(function(request, next) {
   if (this.config.user.token) {
     request.headers.set('userToken', this.config.user.token)
     request.headers.set('appId', this.config.appId)
@@ -31,7 +35,7 @@ Vue.http.interceptors.push(function (request, next) {
   }
   console.log(request)
   const loading = this.$loading()
-  next(function (response) {
+  next(function(response) {
     loading.close()
     if (response.headers.get('user')) {
       this.config.user = JSON.parse(Base64.decode(response.headers.get('user')))
@@ -49,14 +53,18 @@ Vue.http.interceptors.push(function (request, next) {
   })
 })
 
+export const constantRouterMap = [{
+  path: '/party/index.html',
+  component: PartyIndex,
+  meta: {
+    title: '入党管理'
+  }
+}, {
+  path: '/login',
+  component: _import('login/index'),
+  hidden: true
+}]
+
 export default new Router({
-  routes: [
-    {
-      path: '/party/index.html',
-      component: PartyIndex,
-      meta: {
-        title: '入党管理'
-      }
-    }
-  ]
+  routes: constantRouterMap
 })

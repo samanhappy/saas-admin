@@ -374,7 +374,7 @@ export default {
       }
     }
   },
-  mounted: function () {
+  mounted: function() {
     this.load()
   }
 }
